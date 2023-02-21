@@ -1,0 +1,1 @@
+{"type":"record","name":"Hobbit","namespace":"io.confluent.developer.avro","fields":[{"name":"quote","type":{"type":"string","avro.java.string":"String"}}]}
