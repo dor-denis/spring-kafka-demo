@@ -1,7 +1,9 @@
 package io.billie.springkafka
 
 import com.github.javafaker.Faker
-import io.confluent.developer.avro.Hobbit
+import io.billie.springkafka.infrastructure.HobbitMessage
+import io.billie.springkafka.infrastructure.KafkaPublisherService
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.streams.kstream.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -9,7 +11,6 @@ import org.springframework.boot.context.event.ApplicationStartedEvent
 import org.springframework.boot.runApplication
 import org.springframework.context.event.EventListener
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import java.time.Duration
@@ -25,7 +26,7 @@ fun main(args: Array<String>) {
 
 @Component
 class Producer(
-    private val template: KafkaTemplate<Int, Hobbit>
+    private val kafkaPublisherService: KafkaPublisherService
 ) {
     @EventListener(ApplicationStartedEvent::class)
     fun generate() {
@@ -36,8 +37,8 @@ class Producer(
         val quotes = Flux.fromStream(Stream.generate { faker.hobbit().quote() })
 
         Flux.zip(interval, quotes).map {
-            template.send(
-                "hobbitavro", faker.random().nextInt(42), Hobbit(it.t2)
+            kafkaPublisherService.send(
+                "hobbitavro", faker.random().nextInt(42).toString(), HobbitMessage(faker.hobbit().quote())
             )
         }.blockLast()
     }
@@ -46,7 +47,7 @@ class Producer(
 @Component
 class Consumer {
     @KafkaListener(topics = ["hobbitavro"], groupId = "io.billie")
-    fun consume(consumerRecord: ConsumerRecord<Int, Hobbit>) {
+    fun consume(consumerRecord: ConsumerRecord<Int, GenericRecord>) {
         println("Received: ${consumerRecord.value()}, key: ${consumerRecord.key()}")
     }
 }
