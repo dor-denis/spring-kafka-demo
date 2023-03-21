@@ -1,8 +1,8 @@
 package io.billie.springkafka
 
 import com.github.javafaker.Faker
+import com.ozean12.kafkaavrolib.KafkaAvroPublisher
 import io.billie.springkafka.infrastructure.HobbitMessage
-import io.billie.springkafka.infrastructure.KafkaPublisherService
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.streams.kstream.*
@@ -16,7 +16,6 @@ import reactor.core.publisher.Flux
 import java.time.Duration
 import java.util.stream.Stream
 
-
 @SpringBootApplication
 class SpringKafkaDemoApplication
 
@@ -26,7 +25,7 @@ fun main(args: Array<String>) {
 
 @Component
 class Producer(
-    private val kafkaPublisherService: KafkaPublisherService
+    private val kafkaAvroPublisher: KafkaAvroPublisher
 ) {
     @EventListener(ApplicationStartedEvent::class)
     fun generate() {
@@ -37,7 +36,7 @@ class Producer(
         val quotes = Flux.fromStream(Stream.generate { faker.hobbit().quote() })
 
         Flux.zip(interval, quotes).map {
-            kafkaPublisherService.send(
+            kafkaAvroPublisher.send(
                 "hobbitavro", faker.random().nextInt(42).toString(), HobbitMessage(faker.hobbit().quote())
             )
         }.blockLast()

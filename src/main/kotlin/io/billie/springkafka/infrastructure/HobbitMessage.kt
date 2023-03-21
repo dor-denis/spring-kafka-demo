@@ -1,5 +1,6 @@
 package io.billie.springkafka.infrastructure
 
+import com.ozean12.kafkaavrolib.KafkaMessage
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord

@@ -1,11 +1,14 @@
 package io.billie.springkafka.config
 
+import com.ozean12.kafkaavrolib.KafkaAvroPublisher
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.admin.NewTopic
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.TopicBuilder
+import org.springframework.kafka.core.KafkaTemplate
 
 @Configuration
 class KafkaConfig {
@@ -20,5 +23,10 @@ class KafkaConfig {
     @Bean
     fun registry(): SchemaRegistryClient {
         return CachedSchemaRegistryClient("http://localhost:8081", 1000)
+    }
+
+    @Bean
+    fun kafkaAvroPublisher(kafkaTemplate: KafkaTemplate<String, GenericRecord>, registry: SchemaRegistryClient): KafkaAvroPublisher {
+        return KafkaAvroPublisher(kafkaTemplate, registry)
     }
 }
