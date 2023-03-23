@@ -66,7 +66,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2")
     implementation("org.apache.avro:avro:1.11.0")
     implementation("io.confluent:kafka-avro-serializer:7.3.1")
-    implementation("com.ozean12.kafka:kafka-messenger:0.0.2")
+    implementation("com.ozean12.kafka:kafka-messenger:1.0")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
