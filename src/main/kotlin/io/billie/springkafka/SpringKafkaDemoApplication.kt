@@ -1,8 +1,8 @@
 package io.billie.springkafka
 
 import com.github.javafaker.Faker
-import com.ozean12.kafkaavrolib.KafkaAvroPublisher
-import io.billie.springkafka.infrastructure.HobbitMessage
+import com.ozean12.kafkamessenger.KafkaMessenger
+import io.confluent.developer.avro.Hobbit
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.streams.kstream.*
@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
 
 @Component
 class Producer(
-    private val kafkaAvroPublisher: KafkaAvroPublisher
+    private val kafkaMessenger: KafkaMessenger
 ) {
     @EventListener(ApplicationStartedEvent::class)
     fun generate() {
@@ -36,17 +36,20 @@ class Producer(
         val quotes = Flux.fromStream(Stream.generate { faker.hobbit().quote() })
 
         Flux.zip(interval, quotes).map {
-            kafkaAvroPublisher.send(
-                "hobbitavro", faker.random().nextInt(42).toString(), HobbitMessage(faker.hobbit().quote())
+            kafkaMessenger.send(
+                "hobbitavro", "hobbitavro", Hobbit(faker.hobbit().quote())
             )
         }.blockLast()
     }
 }
 
 @Component
-class Consumer {
+class Consumer(
+    private val kafkaMessenger: KafkaMessenger
+) {
     @KafkaListener(topics = ["hobbitavro"], groupId = "io.billie")
-    fun consume(consumerRecord: ConsumerRecord<Int, GenericRecord>) {
-        println("Received: ${consumerRecord.value()}, key: ${consumerRecord.key()}")
+    fun consume(consumerRecord: ConsumerRecord<String, GenericRecord>) {
+        val hobbit = kafkaMessenger.receive(consumerRecord, Hobbit::class.java)
+        println("Received: ${hobbit.quote}, key: ${consumerRecord.key()}")
     }
 }

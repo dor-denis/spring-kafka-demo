@@ -1,6 +1,6 @@
 package io.billie.springkafka.config
 
-import com.ozean12.kafkaavrolib.KafkaAvroPublisher
+import com.ozean12.kafkamessenger.KafkaMessenger
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import org.apache.avro.generic.GenericRecord
@@ -26,7 +26,7 @@ class KafkaConfig {
     }
 
     @Bean
-    fun kafkaAvroPublisher(kafkaTemplate: KafkaTemplate<String, GenericRecord>, registry: SchemaRegistryClient): KafkaAvroPublisher {
-        return KafkaAvroPublisher(kafkaTemplate, registry)
+    fun kafkaMessenger(kafkaTemplate: KafkaTemplate<String, GenericRecord>, registry: SchemaRegistryClient): KafkaMessenger {
+        return KafkaMessenger(kafkaTemplate, registry)
     }
 }
