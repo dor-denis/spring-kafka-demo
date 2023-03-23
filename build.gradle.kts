@@ -22,7 +22,7 @@ repositories {
     }
 
     maven {
-        url = uri("https://maven.pkg.github.com/ozean12/kafka-avro-lib")
+        url = uri("https://maven.pkg.github.com/ozean12/kafka-messenger")
         credentials(HttpHeaderCredentials::class) {
             name = "Authorization"
             value = "Bearer ${System.getenv("GITHUB_PAT")}"
